@@ -11,6 +11,6 @@ spec:
     spec:
       containers:
       - name:  ms-api
-        image: nginx:stable-alpine
+        image: apigwt
         ports:
-        - containerPort: 8282
+        - containerPort: 443

@@ -9,5 +9,5 @@ spec:
     app: api
   ports:
     - protocol: TCP
-      port: 8282
+      port: 443 
   type: LoadBalancer
