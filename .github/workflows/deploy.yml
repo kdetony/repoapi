@@ -1,0 +1,45 @@
+name: ci api deploy
+on: push
+    
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    name: Build image app
+    steps:
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+        
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+        
+      - name: Login to DockerHub
+        uses: docker/login-action@v1 
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+      - name: Build and push
+        id: docker_build
+        uses: docker/build-push-action@v2
+        with:
+          push: true
+          tags: kdetony/apitw:latest
+     
+      - name: Image digest
+        run: echo ${{ steps.docker_build.outputs.digest }}
+        
+  production:
+       name: Deploy APP on Server Docker Remote
+       runs-on: ubuntu-latest
+           
+       steps:
+       - name: Deployment on server docker 
+         uses: appleboy/ssh-action@master
+         with:
+           host: ${{ secrets.HOST }}    
+           username: ${{ secrets.USERNAME }}
+           key: ${{ secrets.PRIVATE_KEY }} 
+           port: ${{ secrets.PORT  }}
+           passphrase: ${{ secrets.PASS }}
+           script: | 
+              mkdir -p /root/deploy
+              docker run -dit -p 8080:80 --restart always --name cont_web apitw/webapp:latest
